@@ -37,14 +37,12 @@ Practice the daily work of a SOC analyst in a safe environment: run an attack, f
 ## Phase 1: Account Setup
 
 - Enabled MFA on the root account
-- Created a monthly cost budget with an email alert
-- Chose one region and used it for all resources
-
+- Created a $10 monthly cost budget with an email alert
+- Worked in one region (us-east-2) so nothing is left running elsewhere
 ![Budget alert](screenshots/01-budget-alert.png)
 
 **Notes / problems and fixes:**
-- [Example: IAM user could not be given console access, so I used root with MFA for this lab.]
-
+- The IAM user I created had no console sign-in option in my console, so I used the root account with MFA for this lab.
 ## Phase 2: Network (VPC)
 
 - VPC CIDR: `10.0.0.0/16`
@@ -54,14 +52,18 @@ Practice the daily work of a SOC analyst in a safe environment: run an attack, f
 ![VPC created](screenshots/02-vpc.png)
 
 **Design decisions:**
-- [Why one subnet, why no NAT gateway, how security groups separate the machines.]
+- No Nat gateway, because it costs about $30 a month and isn't needed
+- One subnet keeps the lab simple
+- Two security groups:
+-   kali-sg: SSH allowed only from my IP
+-   targets-sg: SSH from my IP, and all traffic from kali-sg so attacks can reach targets
 
 ## Phase 3: Machines
 
 | Machine | Role | OS | Notes |
 |---|---|---|---|
-| Kali | Attacker | Kali Linux | |
-| Target 1 | Linux server | Ubuntu Server | |
+| kali-attacker | Attacker | Kali Linux | t3.small |
+| ubuntu-target | Linux server | Ubuntu Server | t3.micro |
 | Target 2 | Windows host | Windows | |
 | SIEM | Log collection | Ubuntu + Splunk | |
 
@@ -82,8 +84,9 @@ Repeat this section for each scenario.
 
 | Step | Details |
 |---|---|
-| Attack | [Nmap command and target] |
+| Attack | nmap -sV against the target's private IP from Kali |
 | What the logs showed | [Events, fields, and search used to find it] |
+| Result before any fix | Port 22 open, 999 other ports closed |
 | Detection | [Splunk search or alert written] |
 | Fix | [Security group change or hardening applied] |
 | Retest | [Result after the fix] |
@@ -110,6 +113,12 @@ Repeat this section for each scenario.
 | Detection | |
 | Fix | |
 | Retest | |
+
+## Problems and Fixes
+
+- Powershell path with spaces needed qoutes
+- SSH "permission denied (publickey)": the Kali image uses the username kali, not ubuntu
+- Ran a Linux ping command in PowerShell by mistake; learned to double check the prompt before running commands
 
 ## What I Learned
 
