@@ -42,7 +42,7 @@ Practice the daily work of a SOC analyst in a safe environment: run an attack, f
 ![Budget alert](screenshots/01-budget-alert.png)
 
 **Notes / problems and fixes:**
-- The IAM user I created had no console sign-in option in my console, so I used the root account with MFA for this lab.
+- The IAM user I created had no console sign-in option in my console, so I used the root account with MFA for this lab. In a production account I would use IAM Identity Center or a dedicated admin user.
 ## Phase 2: Network (VPC)
 
 - VPC CIDR: `10.0.0.0/16`
