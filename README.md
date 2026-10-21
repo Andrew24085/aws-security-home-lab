@@ -71,25 +71,23 @@ Practice the daily work of a SOC analyst in a safe environment: run an attack, f
 
 ## Phase 4: Logging and Detection
 
-- Log sources connected to Splunk: [Linux auth logs, Windows event logs, VPC Flow Logs, CloudTrail]
-- [Describe how logs get to Splunk.]
+- VPC Flow Logs enabled on lab-vpc (filter: all traffic, 1-minute aggregation) and sent to CloudWatch Logs
+- Searched the logs with CloudWatch Logs Insights
+- Splunk to be added later
 
-![Splunk receiving data](screenshots/04-splunk.png)
-
-## Phase 5: Attack, Detect, Fix, Retest
-
-Repeat this section for each scenario.
+Detection query (count distinct ports touched per source):
+fields srcAddr, dstAddr, dstPort
+| filter dstAddr = "10.0.3.157"
+| stats count_distinct(dstPort) as ports_touched by srcAddr
+| sort ports_touched desc
 
 ### Scenario 1: Port scan
 
-| Step | Details |
-|---|---|
-| Attack | nmap -sV against the target's private IP from Kali |
-| What the logs showed | [Events, fields, and search used to find it] |
-| Result before any fix | Port 22 open, 999 other ports closed |
-| Detection | [Splunk search or alert written] |
-| Fix | [Security group change or hardening applied] |
-| Retest | [Result after the fix] |
+| Attack | nmap -sV from Kali (10.0.7.114) against the target (10.0.3.157) |
+| What the logs showed | About 2,000 connection records in a few minutes. Kali touched 866 distinct ports on the target, while every other source touched 54 or fewer. All records were ACCEPT because targets-sg allowed all traffic from kali-sg |
+| Detection | Logs Insights query counting distinct destination ports per source. A source touching hundreds of ports in minutes indicates a scan |
+| Fix | Replaced the "all traffic from kali-sg" rule in targets-sg with SSH (port 22) only, following least privilege |
+| Retest | Same scan: 999 ports now filtered (no response) instead of closed, and scan time rose from 0.45s to 5.07s. Flow logs show 1,999 REJECT records at the target's interface and only SSH accepted |
 
 ![Before](screenshots/05-portscan-before.png)
 ![After](screenshots/05-portscan-after.png)
@@ -122,7 +120,9 @@ Repeat this section for each scenario.
 
 ## What I Learned
 
-- [How the attacks appeared in the logs]
+- Flow logs record traffic at each network interface, so one packet appears twice (outgoing at the attacker, incoming at the target)
+- "Filtered" (no response) and "closed" (reset) ports behave differently, and a firewall drop is silent
+- A server with a public IP gets probed by internet scanners within minutes. My security group rejected them
 - [What a security group can and cannot stop]
 - [What I would add next]
 
