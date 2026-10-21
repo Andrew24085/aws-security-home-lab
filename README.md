@@ -14,10 +14,11 @@ Practice the daily work of a SOC analyst in a safe environment: run an attack, f
 
 | Purpose | Tool |
 |---|---|
-| Cloud platform | AWS (VPC, EC2, security groups, CloudTrail, VPC Flow Logs) |
-| SIEM | Splunk |
+| Cloud platform | AWS (VPC, EC2, security groups, VPC Flow Logs) |
+| Logging and search | CloudWatch Logs Insights |
+| SIEM | Splunk (planned) |
 | Attacker | Kali Linux |
-| Targets | Ubuntu Server, Windows |
+| Targets | Ubuntu Server, Windows (planned) |
 | Diagramming | draw.io |
 
 ## Network Diagram
